@@ -1,0 +1,6 @@
+# Keep the build context small — these aren't needed to build the web frontend.
+.git
+node_modules
+android
+ios
+*.log
