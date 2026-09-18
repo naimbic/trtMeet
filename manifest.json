@@ -1,14 +1,8 @@
 {
-  "android_package_name": "org.jitsi.meet",
-  "prefer_related_applications": true,
-  "related_applications": [
-    {
-      "id": "org.jitsi.meet",
-      "platform": "chromeos_play"
-    }
-  ],
-  "short_name": "Jitsi Meet",
-  "name": "Jitsi Meet",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "short_name": "trtMeet",
+  "name": "trtMeet",
   "icons": [
     {
       "src": "static/pwa/icons/icon192.png",
@@ -28,9 +22,8 @@
     }
   ],
   "start_url": "/",
-  "background_color": "#17A0DB",
+  "background_color": "#040404",
   "display": "standalone",
   "scope": "/",
-  "theme_color": "#17A0DB"
- }
- 
+  "theme_color": "#2563eb"
+}

@@ -127,7 +127,7 @@ var interfaceConfig = {
      */
     SHOW_CHROME_EXTENSION_BANNER: false,
 
-    SHOW_JITSI_WATERMARK: false,
+    SHOW_JITSI_WATERMARK: true,
     SHOW_POWERED_BY: false,
     SHOW_PROMOTIONAL_CLOSE_PAGE: false,
 
@@ -219,7 +219,7 @@ var interfaceConfig = {
     // DEFAULT_LOCAL_DISPLAY_NAME: 'me',
 
     // Please use defaultLogoUrl from config.js
-    // DEFAULT_LOGO_URL: 'images/watermark.svg',
+    DEFAULT_LOGO_URL: 'images/trtmeet-logo.svg',
 
     // Please use defaultRemoteDisplayName from config.js
     // DEFAULT_REMOTE_DISPLAY_NAME: 'Fellow Jitster',
