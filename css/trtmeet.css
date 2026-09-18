@@ -1,0 +1,140 @@
+/* ==========================================================================
+   trtMeet — modern welcome-page redesign (loaded after all.css)
+   Targets Jitsi stable-10888 welcome DOM classes.
+   ========================================================================== */
+:root {
+  --tm-bg: #0a0b12;
+  --tm-bg-2: #0b1022;
+  --tm-accent: #2563eb;
+  --tm-accent-2: #7c3aed;
+  --tm-text: #f4f6fb;
+  --tm-muted: #9aa4b2;
+  --tm-card: rgba(255, 255, 255, 0.06);
+  --tm-border: rgba(255, 255, 255, 0.12);
+}
+
+/* ---- full-page dark canvas ---- */
+body,
+.welcome,
+.welcome-page,
+.welcome-page-content { background: var(--tm-bg) !important; }
+
+/* ---- HERO: drop the stock space photo, use an animated gradient mesh ---- */
+.welcome .header,
+.header {
+  position: relative !important;
+  min-height: 64vh !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(1200px 600px at 12% -12%, rgba(124, 58, 237, 0.38), transparent 60%),
+    radial-gradient(1000px 520px at 92% -4%, rgba(37, 99, 235, 0.42), transparent 55%),
+    linear-gradient(180deg, var(--tm-bg-2) 0%, var(--tm-bg) 100%) !important;
+}
+.header-image { display: none !important; }              /* remove earth image */
+
+/* soft drifting aurora */
+.welcome .header::after {
+  content: '';
+  position: absolute; inset: -20%;
+  pointer-events: none; z-index: 0;
+  background: conic-gradient(from 180deg at 50% 50%,
+    rgba(37, 99, 235, 0.12), rgba(124, 58, 237, 0.12), rgba(37, 99, 235, 0.12));
+  filter: blur(60px); opacity: 0.55;
+  animation: tmDrift 20s ease-in-out infinite alternate;
+}
+@keyframes tmDrift {
+  from { transform: translateY(-3%) scale(1.05); }
+  to   { transform: translateY(3%) scale(1.12); }
+}
+
+/* keep hero content above the aurora */
+.header-container,
+.header-text-title,
+.header-text-subtitle,
+.join-meeting-container,
+.header-watermark-container { position: relative; z-index: 1; }
+
+/* ---- TITLE + subtitle ---- */
+.header-text-title {
+  font-weight: 800 !important;
+  letter-spacing: -1.5px !important;
+  font-size: clamp(40px, 6vw, 74px) !important;
+  background: linear-gradient(90deg, #ffffff, #cfe0ff 55%, #a9b8ff) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+.header-text-subtitle {
+  color: var(--tm-muted) !important;
+  font-weight: 500 !important;
+  font-size: clamp(15px, 1.6vw, 20px) !important;
+  margin-top: 10px !important;
+}
+
+/* ---- logo watermark ---- */
+.welcome-watermark .watermark,
+.watermark.leftwatermark {
+  width: 150px !important; height: 46px !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: left center !important;
+}
+
+/* ---- JOIN card: glassmorphism ---- */
+.enter-room-input-container {
+  background: var(--tm-card) !important;
+  border: 1px solid var(--tm-border) !important;
+  border-radius: 18px !important;
+  backdrop-filter: blur(14px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5) !important;
+  padding: 6px 8px !important;
+  overflow: hidden !important;
+}
+.enter-room-input {
+  background: transparent !important;
+  color: var(--tm-text) !important;
+  font-size: 17px !important;
+}
+.enter-room-input::placeholder { color: #8b95a5 !important; }
+
+/* ---- CTA button: gradient + hover lift ---- */
+.welcome-page-button {
+  background: linear-gradient(135deg, var(--tm-accent), var(--tm-accent-2)) !important;
+  border: none !important;
+  border-radius: 14px !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+  box-shadow: 0 12px 34px rgba(37, 99, 235, 0.45) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease !important;
+}
+.welcome-page-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 18px 44px rgba(124, 58, 237, 0.55) !important;
+  filter: brightness(1.05) !important;
+}
+
+/* ---- recent-list / cards ---- */
+.welcome-cards-container,
+.welcome-card-column { z-index: 1; }
+.welcome-card,
+.welcome-tabs,
+.welcome-card--blue,
+.welcome-card--dark {
+  background: var(--tm-card) !important;
+  border: 1px solid var(--tm-border) !important;
+  border-radius: 16px !important;
+  color: var(--tm-text) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* ---- settings gear ---- */
+.welcome-page-settings { opacity: 0.85; }
+.welcome-page-settings:hover { opacity: 1; }
+
+/* ---- remove the footer entirely ---- */
+.welcome-footer,
+.welcome-footer-centered,
+.welcome-footer-padded { display: none !important; }
