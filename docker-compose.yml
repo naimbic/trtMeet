@@ -1,0 +1,139 @@
+# trtMeet — full self-contained meeting stack, deployed from git via Coolify.
+# web is built from ./Dockerfile (custom trtMeet branding); prosody/jicofo/jvb are
+# the official images pinned to the same release. All four share one network, so the
+# frontend reaches prosody by service name — no manual network wiring needed.
+#
+# Secrets are NOT stored here — set them in Coolify's Environment Variables:
+#   JICOFO_COMPONENT_SECRET, JICOFO_AUTH_PASSWORD, JVB_AUTH_PASSWORD
+# Expose the `web` service on your domain in Coolify (meet.3a.ma), target port 80.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # Coolify magic: generates the domain + routes to port 80 (edit value to meet.3a.ma in the UI)
+      SERVICE_FQDN_WEB_80: /
+      PUBLIC_URL: ${PUBLIC_URL:-https://meet.3a.ma}
+      ENABLE_AUTH: '1'
+      ENABLE_GUESTS: '1'
+      ENABLE_LETSENCRYPT: '0'
+      ENABLE_HTTP_REDIRECT: '0'
+      DISABLE_HTTPS: '1'
+      XMPP_DOMAIN: meet.jitsi
+      XMPP_AUTH_DOMAIN: auth.meet.jitsi
+      XMPP_GUEST_DOMAIN: guest.meet.jitsi
+      XMPP_MUC_DOMAIN: conference.meet.jitsi
+      XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.jitsi
+      XMPP_BOSH_URL_BASE: http://prosody:5280
+      JVB_BREWERY_MUC: jvbbrewery
+      JICOFO_COMPONENT_SECRET: ${JICOFO_COMPONENT_SECRET}
+      JICOFO_AUTH_PASSWORD: ${JICOFO_AUTH_PASSWORD}
+      JVB_AUTH_PASSWORD: ${JVB_AUTH_PASSWORD}
+      DEFAULT_LANGUAGE: ${DEFAULT_LANGUAGE:-fr}
+      TZ: UTC
+    depends_on: [prosody, jicofo, jvb]
+    volumes:
+      - trtmeet-web:/config
+    networks: [meetjitsi]
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost']
+      interval: 10s
+      timeout: 10s
+      retries: 15
+
+  prosody:
+    image: jitsi/prosody:stable-10888
+    restart: unless-stopped
+    environment:
+      AUTH_TYPE: internal
+      ENABLE_AUTH: '1'
+      ENABLE_GUESTS: '1'
+      XMPP_DOMAIN: meet.jitsi
+      XMPP_AUTH_DOMAIN: auth.meet.jitsi
+      XMPP_GUEST_DOMAIN: guest.meet.jitsi
+      XMPP_MUC_DOMAIN: conference.meet.jitsi
+      XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.jitsi
+      JICOFO_COMPONENT_SECRET: ${JICOFO_COMPONENT_SECRET}
+      JICOFO_AUTH_PASSWORD: ${JICOFO_AUTH_PASSWORD}
+      JVB_AUTH_PASSWORD: ${JVB_AUTH_PASSWORD}
+      PUBLIC_URL: ${PUBLIC_URL:-https://meet.3a.ma}
+      TZ: UTC
+      LOG_LEVEL: info
+    volumes:
+      - trtmeet-prosody:/config
+    networks:
+      meetjitsi:
+        aliases: [prosody, xmpp.meet.jitsi, auth.meet.jitsi, guest.meet.jitsi, conference.meet.jitsi, internal.auth.meet.jitsi]
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:5280/http-bind']
+      interval: 10s
+      timeout: 10s
+      retries: 15
+
+  jicofo:
+    image: jitsi/jicofo:stable-10888
+    restart: unless-stopped
+    environment:
+      AUTH_TYPE: internal
+      ENABLE_AUTH: '1'
+      XMPP_DOMAIN: meet.jitsi
+      XMPP_AUTH_DOMAIN: auth.meet.jitsi
+      XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.jitsi
+      XMPP_MUC_DOMAIN: conference.meet.jitsi
+      XMPP_SERVER: prosody
+      JICOFO_COMPONENT_SECRET: ${JICOFO_COMPONENT_SECRET}
+      JICOFO_AUTH_PASSWORD: ${JICOFO_AUTH_PASSWORD}
+      JVB_BREWERY_MUC: jvbbrewery
+      JICOFO_ENABLE_HEALTH_CHECKS: '1'
+      TZ: UTC
+    depends_on: [prosody]
+    volumes:
+      - trtmeet-jicofo:/config
+    networks: [meetjitsi]
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8888/about/health']
+      interval: 10s
+      timeout: 10s
+      retries: 15
+
+  jvb:
+    image: jitsi/jvb:stable-10888
+    restart: unless-stopped
+    ports:
+      - '10000:10000/udp'
+    environment:
+      XMPP_SERVER: prosody
+      XMPP_DOMAIN: meet.jitsi
+      XMPP_AUTH_DOMAIN: auth.meet.jitsi
+      XMPP_INTERNAL_MUC_DOMAIN: internal.auth.meet.jitsi
+      XMPP_MUC_DOMAIN: conference.meet.jitsi
+      JVB_AUTH_USER: jvb
+      JVB_AUTH_PASSWORD: ${JVB_AUTH_PASSWORD}
+      JVB_BREWERY_MUC: jvbbrewery
+      JVB_PORT: '10000'
+      JVB_ADVERTISE_IPS: ${JVB_ADVERTISE_IPS:-178.105.204.145}
+      JVB_STUN_SERVERS: 'stun.l.google.com:19302'
+      PUBLIC_URL: ${PUBLIC_URL:-https://meet.3a.ma}
+      TZ: UTC
+    depends_on: [prosody]
+    volumes:
+      - trtmeet-jvb:/config
+    networks: [meetjitsi]
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/about/health']
+      interval: 10s
+      timeout: 10s
+      retries: 15
+
+volumes:
+  trtmeet-web:
+  trtmeet-prosody:
+  trtmeet-jicofo:
+  trtmeet-jvb:
+
+networks:
+  meetjitsi:
+    driver: bridge
