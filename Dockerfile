@@ -14,9 +14,14 @@ ENV NODE_OPTIONS=--max-old-space-size=8192
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git make python3 g++ ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-# Full source is needed before install (patch-package/postinstall run against it).
+# Full source is needed before install (patches are applied against node_modules).
 COPY . .
-RUN npm ci
+# Install deps but SKIP the package postinstall — jitsi-meet's postinstall runs
+# Android/iOS native setup (jetify, android-autolinking) that a web build doesn't
+# need and that fails without the android/ dir (excluded via .dockerignore).
+RUN npm ci --ignore-scripts
+# The web build does need the patches that patch-package applies:
+RUN npx patch-package --error-on-fail
 RUN make
 
 # ---------- runtime stage ----------
