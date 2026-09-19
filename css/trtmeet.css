@@ -1,140 +1,202 @@
 /* ==========================================================================
-   trtMeet — modern welcome-page redesign (loaded after all.css)
-   Targets Jitsi stable-10888 welcome DOM classes.
+   trtMeet — modern welcome redesign (loaded after all.css)
+   Sticky glass header: logo (left) · room bar (center) · gear (right)
+   Recent rooms list in a centered column below. Jitsi stable-10888 DOM.
    ========================================================================== */
 :root {
   --tm-bg: #0a0b12;
-  --tm-bg-2: #0b1022;
+  --tm-bg-2: #0d1226;
   --tm-accent: #2563eb;
   --tm-accent-2: #7c3aed;
   --tm-text: #f4f6fb;
   --tm-muted: #9aa4b2;
-  --tm-card: rgba(255, 255, 255, 0.06);
+  --tm-card: rgba(255, 255, 255, 0.055);
+  --tm-card-2: rgba(255, 255, 255, 0.08);
   --tm-border: rgba(255, 255, 255, 0.12);
+  --tm-radius: 16px;
+  --tm-header-h: 72px;
+  --tm-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ---- full-page dark canvas ---- */
+/* ---- page canvas: soft brand glow on deep dark ---- */
 body,
 .welcome,
 .welcome-page,
-.welcome-page-content { background: var(--tm-bg) !important; }
-
-/* ---- HERO: drop the stock space photo, use an animated gradient mesh ---- */
-.welcome .header,
-.header {
-  position: relative !important;
-  min-height: 64vh !important;
-  overflow: hidden !important;
+.welcome-page-content {
+  background: var(--tm-bg) !important;
+  font-family: var(--tm-font) !important;
+}
+.welcome {
+  min-height: 100vh !important;
   background:
-    radial-gradient(1200px 600px at 12% -12%, rgba(124, 58, 237, 0.38), transparent 60%),
-    radial-gradient(1000px 520px at 92% -4%, rgba(37, 99, 235, 0.42), transparent 55%),
-    linear-gradient(180deg, var(--tm-bg-2) 0%, var(--tm-bg) 100%) !important;
-}
-.header-image { display: none !important; }              /* remove earth image */
-
-/* soft drifting aurora */
-.welcome .header::after {
-  content: '';
-  position: absolute; inset: -20%;
-  pointer-events: none; z-index: 0;
-  background: conic-gradient(from 180deg at 50% 50%,
-    rgba(37, 99, 235, 0.12), rgba(124, 58, 237, 0.12), rgba(37, 99, 235, 0.12));
-  filter: blur(60px); opacity: 0.55;
-  animation: tmDrift 20s ease-in-out infinite alternate;
-}
-@keyframes tmDrift {
-  from { transform: translateY(-3%) scale(1.05); }
-  to   { transform: translateY(3%) scale(1.12); }
+    radial-gradient(900px 500px at 12% -8%, rgba(124, 58, 237, 0.16), transparent 60%),
+    radial-gradient(1000px 560px at 100% -6%, rgba(37, 99, 235, 0.18), transparent 55%),
+    var(--tm-bg) !important;
 }
 
-/* keep hero content above the aurora */
-.header-container,
+/* ==========================================================================
+   STICKY HEADER
+   ========================================================================== */
+.welcome .header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 120 !important;
+  min-height: var(--tm-header-h) !important;
+  height: var(--tm-header-h) !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+  background: rgba(10, 11, 18, 0.72) !important;
+  backdrop-filter: blur(16px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+  border-bottom: 1px solid var(--tm-border) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35) !important;
+}
+.header-image { display: none !important; }                 /* remove stock earth image */
 .header-text-title,
-.header-text-subtitle,
-.join-meeting-container,
-.header-watermark-container { position: relative; z-index: 1; }
+.header-text-subtitle { display: none !important; }         /* no big hero in bar mode */
 
-/* ---- TITLE + subtitle ---- */
-.header-text-title {
-  font-weight: 800 !important;
-  letter-spacing: -1.5px !important;
-  font-size: clamp(40px, 6vw, 74px) !important;
-  background: linear-gradient(90deg, #ffffff, #cfe0ff 55%, #a9b8ff) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-}
-.header-text-subtitle {
-  color: var(--tm-muted) !important;
-  font-weight: 500 !important;
-  font-size: clamp(15px, 1.6vw, 20px) !important;
-  margin-top: 10px !important;
+/* header inner: three-zone flex row */
+.header-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+  max-width: 1180px !important;
+  margin: 0 auto !important;
+  padding: 0 24px !important;
 }
 
-/* ---- logo watermark ---- */
+/* logo — left */
+.header-watermark-container { order: 0 !important; flex: 0 0 auto !important; margin: 0 !important; }
+.welcome-watermark { position: static !important; }
 .welcome-watermark .watermark,
 .watermark.leftwatermark {
-  width: 150px !important; height: 46px !important;
+  position: static !important;
+  width: 138px !important; height: 40px !important;
+  margin: 0 !important;
   background-size: contain !important;
   background-repeat: no-repeat !important;
   background-position: left center !important;
 }
 
-/* ---- JOIN card: glassmorphism ---- */
+/* room bar — center, grows */
+#enter_room { order: 1 !important; flex: 1 1 auto !important; display: flex !important; justify-content: center !important; }
+.join-meeting-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 540px !important;
+}
 .enter-room-input-container {
+  flex: 1 1 auto !important;
+  height: 46px !important;
+  display: flex !important; align-items: center !important;
   background: var(--tm-card) !important;
   border: 1px solid var(--tm-border) !important;
-  border-radius: 18px !important;
-  backdrop-filter: blur(14px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5) !important;
-  padding: 6px 8px !important;
-  overflow: hidden !important;
+  border-radius: 12px !important;
+  padding: 0 14px !important;
+  transition: border-color .15s ease, box-shadow .15s ease !important;
+}
+.enter-room-input-container:focus-within {
+  border-color: rgba(96, 165, 250, .8) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .22) !important;
 }
 .enter-room-input {
+  width: 100% !important;
   background: transparent !important;
+  border: none !important;
   color: var(--tm-text) !important;
-  font-size: 17px !important;
+  font-size: 15px !important;
 }
 .enter-room-input::placeholder { color: #8b95a5 !important; }
 
-/* ---- CTA button: gradient + hover lift ---- */
+/* create/start button */
 .welcome-page-button {
+  flex: 0 0 auto !important;
+  height: 46px !important;
+  padding: 0 20px !important;
   background: linear-gradient(135deg, var(--tm-accent), var(--tm-accent-2)) !important;
   border: none !important;
-  border-radius: 14px !important;
+  border-radius: 12px !important;
   color: #fff !important;
   font-weight: 700 !important;
-  letter-spacing: 0.2px !important;
-  box-shadow: 0 12px 34px rgba(37, 99, 235, 0.45) !important;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease !important;
+  font-size: 14px !important;
+  letter-spacing: .2px !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.4) !important;
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease !important;
 }
-.welcome-page-button:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 18px 44px rgba(124, 58, 237, 0.55) !important;
-  filter: brightness(1.05) !important;
-}
+.welcome-page-button:hover { transform: translateY(-1px) !important; box-shadow: 0 14px 34px rgba(124, 58, 237, .5) !important; filter: brightness(1.05) !important; }
+.welcome-page-button:focus-visible { outline: 2px solid #93c5fd !important; outline-offset: 2px !important; }
 
-/* ---- recent-list / cards ---- */
-.welcome-cards-container,
-.welcome-card-column { z-index: 1; }
+/* gear — right */
+.welcome-page-settings {
+  order: 2 !important;
+  position: static !important;
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  top: auto !important; right: auto !important;
+  display: flex !important; align-items: center !important;
+}
+.welcome-page-settings .settings-button-container,
+.settings-toolbar-content { opacity: .9 !important; transition: opacity .15s ease; }
+.welcome-page-settings:hover { opacity: 1 !important; }
+
+/* ==========================================================================
+   RECENT ROOMS / RECORDS — centered column under the header
+   ========================================================================== */
+.welcome-cards-container {
+  position: relative !important;
+  z-index: 1 !important;
+  width: 100% !important;
+  max-width: 760px !important;
+  margin: 40px auto 64px !important;
+  padding: 0 24px !important;
+}
+.welcome-card-column { width: 100% !important; gap: 16px !important; }
+
 .welcome-card,
 .welcome-tabs,
 .welcome-card--blue,
 .welcome-card--dark {
   background: var(--tm-card) !important;
   border: 1px solid var(--tm-border) !important;
-  border-radius: 16px !important;
+  border-radius: var(--tm-radius) !important;
   color: var(--tm-text) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28) !important;
 }
 
-/* ---- settings gear ---- */
-.welcome-page-settings { opacity: 0.85; }
-.welcome-page-settings:hover { opacity: 1; }
+/* recent-list rows */
+.welcome-tabs .item,
+.recent-list-item {
+  border-radius: 12px !important;
+  transition: background .15s ease, transform .15s ease !important;
+}
+.welcome-tabs .item:hover,
+.recent-list-item:hover {
+  background: var(--tm-card-2) !important;
+  transform: translateX(2px) !important;
+}
 
-/* ---- remove the footer entirely ---- */
+/* ---- footer removed ---- */
 .welcome-footer,
 .welcome-footer-centered,
 .welcome-footer-padded { display: none !important; }
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 640px) {
+  :root { --tm-header-h: auto; }
+  .welcome .header { height: auto !important; padding: 10px 0 !important; }
+  .header-container { flex-wrap: wrap !important; padding: 0 14px !important; gap: 10px !important; }
+  .header-watermark-container { order: 0 !important; }
+  .welcome-page-settings { order: 1 !important; }
+  #enter_room { order: 2 !important; flex-basis: 100% !important; }
+  .join-meeting-container { max-width: 100% !important; }
+  .welcome-cards-container { margin-top: 24px !important; padding: 0 14px !important; }
+}
