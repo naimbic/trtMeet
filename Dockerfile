@@ -10,7 +10,7 @@
 # ---------- build stage ----------
 FROM node:24-bookworm AS builder
 WORKDIR /src
-ENV NODE_OPTIONS=--max-old-space-size=8192
+ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git make python3 g++ ca-certificates \
     && rm -rf /var/lib/apt/lists/*
