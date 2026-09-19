@@ -1,28 +1,22 @@
 /* ==========================================================================
    trtMeet — modern welcome redesign (loaded after all.css)
-   Sticky glass header: logo (left) · room bar (center) · gear (right)
-   Recent rooms list in a centered column below. Jitsi stable-10888 DOM.
+   Sticky glass header via CSS grid: [logo | room bar | gear]; recent list below.
+   Verified against Jitsi stable-10888 welcome DOM.
    ========================================================================== */
 :root {
   --tm-bg: #0a0b12;
-  --tm-bg-2: #0d1226;
   --tm-accent: #2563eb;
   --tm-accent-2: #7c3aed;
   --tm-text: #f4f6fb;
   --tm-muted: #9aa4b2;
-  --tm-card: rgba(255, 255, 255, 0.055);
-  --tm-card-2: rgba(255, 255, 255, 0.08);
+  --tm-card: rgba(255, 255, 255, 0.06);
+  --tm-card-2: rgba(255, 255, 255, 0.09);
   --tm-border: rgba(255, 255, 255, 0.12);
-  --tm-radius: 16px;
-  --tm-header-h: 72px;
   --tm-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ---- page canvas: soft brand glow on deep dark ---- */
-body,
-.welcome,
-.welcome-page,
-.welcome-page-content {
+/* ---- page canvas ---- */
+body, .welcome, .welcome-page, .welcome-page-content {
   background: var(--tm-bg) !important;
   font-family: var(--tm-font) !important;
 }
@@ -35,168 +29,109 @@ body,
 }
 
 /* ==========================================================================
-   STICKY HEADER
+   STICKY HEADER  (bar wrapper = .header, 3-col grid = .header-container)
    ========================================================================== */
 .welcome .header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 120 !important;
-  min-height: var(--tm-header-h) !important;
-  height: var(--tm-header-h) !important;
-  display: flex !important;
-  align-items: center !important;
-  padding: 0 !important;
+  display: block !important;
+  position: sticky !important; top: 0 !important; z-index: 120 !important;
+  min-height: 72px !important; height: 72px !important; overflow: visible !important;
   background: rgba(10, 11, 18, 0.72) !important;
   backdrop-filter: blur(16px) saturate(150%) !important;
   -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
   border-bottom: 1px solid var(--tm-border) !important;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35) !important;
 }
-.header-image { display: none !important; }                 /* remove stock earth image */
-.header-text-title,
-.header-text-subtitle { display: none !important; }         /* no big hero in bar mode */
+.header-image { display: none !important; }
+.header-text-title, .header-text-subtitle { display: none !important; }
 
-/* header inner: three-zone flex row */
 .header-container {
-  display: flex !important;
+  display: grid !important;
+  grid-template-columns: 150px 1fr auto !important;
   align-items: center !important;
   gap: 16px !important;
-  width: 100% !important;
-  max-width: 1180px !important;
-  margin: 0 auto !important;
-  padding: 0 24px !important;
+  width: 100% !important; max-width: 1180px !important;
+  height: 72px !important; margin: 0 auto !important; padding: 0 24px !important;
 }
 
-/* logo — left */
-.header-watermark-container { order: 0 !important; flex: 0 0 auto !important; margin: 0 !important; }
-.welcome-watermark { position: static !important; }
-.welcome-watermark .watermark,
-.watermark.leftwatermark {
-  position: static !important;
-  width: 138px !important; height: 40px !important;
-  margin: 0 !important;
-  background-size: contain !important;
-  background-repeat: no-repeat !important;
-  background-position: left center !important;
+/* logo — column 1 (own SVG via ::before, native watermark hidden) */
+.header-watermark-container {
+  grid-column: 1 !important;
+  width: 150px !important; height: 44px !important; margin: 0 !important;
+  display: flex !important; align-items: center !important;
+}
+.header-watermark-container .welcome-watermark,
+.header-watermark-container .watermark { display: none !important; }
+.header-watermark-container::before {
+  content: ''; display: block !important;
+  width: 150px; height: 44px;
+  background: url('/images/trtmeet-logo.svg') left center / contain no-repeat;
 }
 
-/* room bar — center, grows */
-#enter_room { order: 1 !important; flex: 1 1 auto !important; display: flex !important; justify-content: center !important; }
-.join-meeting-container {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  width: 100% !important;
-  max-width: 540px !important;
-}
+/* room bar — column 2, centered */
+#enter_room { grid-column: 2 !important; display: flex !important; justify-content: center !important; width: auto !important; }
+.join-meeting-container { display: flex !important; align-items: center !important; gap: 8px !important; width: 100% !important; max-width: 520px !important; }
 .enter-room-input-container {
-  flex: 1 1 auto !important;
-  height: 46px !important;
+  flex: 1 1 auto !important; height: 46px !important;
   display: flex !important; align-items: center !important;
   background: var(--tm-card) !important;
   border: 1px solid var(--tm-border) !important;
-  border-radius: 12px !important;
-  padding: 0 14px !important;
+  border-radius: 12px !important; padding: 0 14px !important;
   transition: border-color .15s ease, box-shadow .15s ease !important;
 }
-.enter-room-input-container:focus-within {
-  border-color: rgba(96, 165, 250, .8) !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, .22) !important;
-}
-.enter-room-input {
-  width: 100% !important;
-  background: transparent !important;
-  border: none !important;
-  color: var(--tm-text) !important;
-  font-size: 15px !important;
-}
+.enter-room-input-container:focus-within { border-color: rgba(96,165,250,.8) !important; box-shadow: 0 0 0 3px rgba(37,99,235,.22) !important; }
+.enter-room-input { width: 100% !important; background: transparent !important; border: none !important; color: var(--tm-text) !important; font-size: 15px !important; }
 .enter-room-input::placeholder { color: #8b95a5 !important; }
 
 /* create/start button */
 .welcome-page-button {
-  flex: 0 0 auto !important;
-  height: 46px !important;
-  padding: 0 20px !important;
+  flex: 0 0 auto !important; height: 46px !important; padding: 0 20px !important;
   background: linear-gradient(135deg, var(--tm-accent), var(--tm-accent-2)) !important;
-  border: none !important;
-  border-radius: 12px !important;
-  color: #fff !important;
-  font-weight: 700 !important;
-  font-size: 14px !important;
-  letter-spacing: .2px !important;
-  cursor: pointer !important;
+  border: none !important; border-radius: 12px !important; color: #fff !important;
+  font-weight: 700 !important; font-size: 14px !important; letter-spacing: .2px !important; cursor: pointer !important;
   box-shadow: 0 10px 26px rgba(37, 99, 235, 0.4) !important;
   transition: transform .15s ease, box-shadow .15s ease, filter .15s ease !important;
 }
-.welcome-page-button:hover { transform: translateY(-1px) !important; box-shadow: 0 14px 34px rgba(124, 58, 237, .5) !important; filter: brightness(1.05) !important; }
+.welcome-page-button:hover { transform: translateY(-1px) !important; box-shadow: 0 14px 34px rgba(124,58,237,.5) !important; filter: brightness(1.05) !important; }
 .welcome-page-button:focus-visible { outline: 2px solid #93c5fd !important; outline-offset: 2px !important; }
 
-/* gear — right */
-.welcome-page-settings {
-  order: 2 !important;
-  position: static !important;
-  flex: 0 0 auto !important;
-  margin-left: auto !important;
-  top: auto !important; right: auto !important;
-  display: flex !important; align-items: center !important;
-}
-.welcome-page-settings .settings-button-container,
-.settings-toolbar-content { opacity: .9 !important; transition: opacity .15s ease; }
-.welcome-page-settings:hover { opacity: 1 !important; }
+/* gear — column 3 */
+.welcome-page-settings { grid-column: 3 !important; position: static !important; margin: 0 !important; top: auto !important; right: auto !important; display: flex !important; align-items: center !important; }
 
 /* ==========================================================================
-   RECENT ROOMS / RECORDS — centered column under the header
+   RECENT ROOMS — centered column under the header
    ========================================================================== */
-.welcome-cards-container {
-  position: relative !important;
-  z-index: 1 !important;
-  width: 100% !important;
-  max-width: 760px !important;
-  margin: 40px auto 64px !important;
-  padding: 0 24px !important;
-}
-.welcome-card-column { width: 100% !important; gap: 16px !important; }
+.welcome-cards-container { position: relative !important; z-index: 1 !important; width: 100% !important; max-width: 760px !important; margin: 32px auto 64px !important; padding: 0 24px !important; }
+.welcome-card-column { width: 100% !important; }
 
-.welcome-card,
-.welcome-tabs,
-.welcome-card--blue,
-.welcome-card--dark {
-  background: var(--tm-card) !important;
-  border: 1px solid var(--tm-border) !important;
-  border-radius: var(--tm-radius) !important;
-  color: var(--tm-text) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+.welcome-card, .welcome-tabs, .welcome-card--blue, .welcome-card--dark {
+  background: var(--tm-card) !important; border: 1px solid var(--tm-border) !important;
+  border-radius: 16px !important; color: var(--tm-text) !important;
+  backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28) !important;
 }
-
-/* recent-list rows */
-.welcome-tabs .item,
-.recent-list-item {
-  border-radius: 12px !important;
-  transition: background .15s ease, transform .15s ease !important;
+/* inner containers transparent so the glass card shows through */
+.tab-container, .tab-content, .meetings-list { background: transparent !important; border: none !important; }
+.meetings-list .item, .meetings-list .item.with-click-handler {
+  background: transparent !important; border: none !important;
+  border-radius: 12px !important; margin: 4px 6px !important; padding: 12px 14px !important;
+  transition: background .15s ease !important;
 }
-.welcome-tabs .item:hover,
-.recent-list-item:hover {
-  background: var(--tm-card-2) !important;
-  transform: translateX(2px) !important;
-}
+.meetings-list .item:hover { background: var(--tm-card-2) !important; }
+.meetings-list .item .title, .meetings-list .item .right-column, .meetings-list .item .left-column { color: var(--tm-text) !important; }
+.meetings-list .item .subtitle { color: var(--tm-muted) !important; }
+.meetings-list .item .jitsi-icon svg path { fill: var(--tm-muted) !important; }
 
 /* ---- footer removed ---- */
-.welcome-footer,
-.welcome-footer-centered,
-.welcome-footer-padded { display: none !important; }
+.welcome-footer, .welcome-footer-centered, .welcome-footer-padded { display: none !important; }
 
 /* ==========================================================================
    RESPONSIVE
    ========================================================================== */
-@media (max-width: 640px) {
-  :root { --tm-header-h: auto; }
-  .welcome .header { height: auto !important; padding: 10px 0 !important; }
-  .header-container { flex-wrap: wrap !important; padding: 0 14px !important; gap: 10px !important; }
-  .header-watermark-container { order: 0 !important; }
-  .welcome-page-settings { order: 1 !important; }
-  #enter_room { order: 2 !important; flex-basis: 100% !important; }
+@media (max-width: 700px) {
+  .welcome .header { height: auto !important; }
+  .header-container { grid-template-columns: auto 1fr auto !important; height: auto !important; padding: 10px 14px !important; gap: 10px !important; }
+  .header-watermark-container, .header-watermark-container::before { width: 40px !important; }
+  .header-watermark-container::before { background-image: url('/images/favicon.svg') !important; }
   .join-meeting-container { max-width: 100% !important; }
-  .welcome-cards-container { margin-top: 24px !important; padding: 0 14px !important; }
+  .welcome-cards-container { margin-top: 20px !important; padding: 0 14px !important; }
 }
